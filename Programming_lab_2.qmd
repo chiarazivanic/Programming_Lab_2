@@ -25,5 +25,5 @@ paygapEU <- read.csv("pay_gap_Europe.csv")
 
 head(paygapEU)
 summary(paygapEU$GDP)
-paygap <- paygapEU |> filter(Country %in% c("Italy", "Switzerland", "Bulgaria")) |> arrange(Year)
-paygap
+paygap <- paygapEU |> filter(Country %in% c("Italy", "Switzerland", "Bulgaria")) 
+paygap <- paygap |> select(-c(Industry, Electricity_supply, Water_supply, Retail.trade, Transportation, Accommodation, Information, Financial, Professional_scientific, Administrative, Public_administration, Human_health, Arts, Other))
