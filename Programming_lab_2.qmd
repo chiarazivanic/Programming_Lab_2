@@ -97,7 +97,6 @@ map
 ```
 
 ```{r}
-# Assuming 'e_data' is your dataset and 'Value' represents the percentage of females in managerial positions
 
 # Sort the data by 'Value' in descending order
 sorted_data <- e_data[order(-e_data$Value), ]
