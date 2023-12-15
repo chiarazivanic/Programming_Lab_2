@@ -76,3 +76,93 @@ management <- management %>%
 view(management)
 
 ```
+### distribution of the Female share of employment in senior and middle management (%) in European countries
+```{r}
+
+# Create a choropleth map
+map <- plot_geo(e_data, locations = ~Country.NameEU, locationmode = "country names") %>%
+  add_trace(
+    z = ~Value,
+    text = ~paste("Country: ", Country.NameEU, "<br>Percentage of Females: ", Value, "%"),
+    colorscale = "Viridis",
+    colorbar = list(title = "Percentage of Females in Managerial Positions")
+  ) %>%
+  layout(
+    title = "Percentage of Females in Managerial Positions by European Countries",
+    geo = list(scope = "europe")
+  )
+
+# Show the map
+map
+```
+
+```{r}
+# Assuming 'e_data' is your dataset and 'Value' represents the percentage of females in managerial positions
+
+# Sort the data by 'Value' in descending order
+sorted_data <- e_data[order(-e_data$Value), ]
+
+# Extract the highest three values
+highest_three <- head(sorted_data, 3)
+
+# Extract the lowest three values
+lowest_three <- tail(sorted_data, 3)
+
+# Print the highest and lowest three values
+cat("Highest Three:\n")
+print(highest_three[, c("Country.NameEU", "Value")])
+
+cat("\nLowest Three:\n")
+print(lowest_three[, c("Country.NameEU", "Value")])
+
+```
+
+```{r}
+# List of European countries
+european_countries <- c(
+    "Austria", "Belarus", "Belgium", "Bosnia and Herzegovina", "Bulgaria", 
+    "Croatia", "Cyprus", "Czechia", "Denmark", "Estonia", "Finland", "France", 
+    "Georgia", "Germany", "Greece", "Hungary", "Iceland", "Ireland", "Italy", 
+    "Latvia", "Lithuania", "Luxembourg", "Malta", "Moldova", "Monaco", 
+    "Montenegro", "Netherlands", "North Macedonia", "Norway", "Poland", "Portugal", 
+    "Romania", "Russia", "San Marino", "Serbia", "Slovakia", "Slovenia", "Spain", 
+    "Sweden", "Switzerland", "Turkey", "Ukraine", "United Kingdom", "Vatican City"
+)
+
+# Create 'Country.NameEU' in 'paygapEU' dataset
+paygapEU$Country.NameEU <- ifelse(paygapEU$Country %in% european_countries, paygapEU$Country, NA)
+
+```
+
+```{r}
+# Check unique values in 'Country.NameEU' column in 'management'
+unique_countries_management <- unique(management$Country.NameEU)
+print(unique_countries_management)
+
+# Check unique values in 'Country.NameEU' column in 'paygapEU'
+unique_countries_paygapEU <- unique(paygapEU$Country.NameEU)
+print(unique_countries_paygapEU)
+
+# Merge 'paygapEU' with 'paygap' based on the 'Country' column
+paygapEU <- merge(paygapEU, paygap[, c("Country", "Secondary_sector")], by = "Country", all.x = TRUE)
+
+# View the updated 'paygapEU' dataset
+print(head(paygapEU))
+
+# Merge the datasets on a common column ('Country.NameEU' assumed)
+merged_data <- merge(management, paygapEU, by = "Country.NameEU")
+# Check column names in the merged dataset
+print(colnames(merged_data))
+# Assuming 'Secondary_sector.x' is the relevant column
+model <- lm(Value ~ Secondary_sector.x, data = merged_data)
+
+# Summary of the regression model
+summary(model)
+
+# Perform linear regression with 'Value' and 'Secondary_sector'
+model <- lm(Value ~ Secondary_sector, data = merged_data)
+
+# Summary of the regression model
+summary(model)
+
+```
