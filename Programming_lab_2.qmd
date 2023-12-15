@@ -7,6 +7,23 @@ editor: visual
 
 #Gender equality in the work place
 
+{r}
+library(readr)
+library(tidyverse)
+library(gapminder)
+library(ggplot2)
+library(dplyr)
+library(knitr)
+library(broom)
+library(magrittr)
+library(knitr)
+library(plotly)
 
+getwd()
+setwd("/Users/chiarazivanic/Desktop/Programminglab2")
+paygapEU <- read.csv("pay_gap_Europe.csv")
 
+head(paygapEU)
+summary(paygapEU$GDP)
+paygapEU |> 
 
