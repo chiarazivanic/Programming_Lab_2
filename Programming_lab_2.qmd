@@ -48,19 +48,78 @@ ggplot(paygap, aes(x = GDP, y = Secondary_sector, color = Country)) +
 summary(lin_mod1)
 
 # Milena
+---
+title: "Programming_Lab_2"
+author: "Zivanic, Lugli, Battaglio"
+format: html
+editor: visual
+---
+
+# Gender pay gap
+
+```{r}
+
+library(readr)
+library(tidyverse)
+library(gapminder)
+library(ggplot2)
+library(dplyr)
+library(knitr)
+library(broom)
+library(magrittr)
+library(knitr)
+library(plotly)
+
+getwd()
+
+#setwd("C:/Users/SAMSUNG PC/OneDrive/uni/programminglab2/progetto_esame")
+paygapEU <- read.csv("pay_gap_Europe.csv")
+view(paygapEU)
+
+```
+
+```{r}
+head(paygapEU)
+summary(paygapEU$GDP)
+paygap <- paygapEU |> filter(Country %in% c("Italy", "Switzerland", "Bulgaria")) 
+paygap <- paygap |> select(-c(Industry, Electricity_supply, Water_supply, Retail.trade, Transportation, Accommodation, Information, Financial, Professional_scientific, Administrative, Public_administration, Human_health, Arts, Other))
+
+paygap <- paygap |> mutate(Secondary_sector = rowMeans(select(paygap, Construction, Mining, Manufacturing), na.rm=TRUE))
+
+# Esegui la regressione lineare generale 
+lin_mod1 <- lm(Secondary_sector ~ GDP, data = paygap)
+lin_mod1
+
+# Crea il grafico utilizzando ggplot2
+ggplot(paygap, aes(x = GDP, y = Secondary_sector, color = Country)) +
+  geom_point(alpha = 0.5) +  
+  geom_smooth(data = paygap, method = "lm", se = TRUE, aes(fill = Country), alpha = 0.2) +  # Linee di regressione con intervalli di confidenza
+  geom_line(data = data.frame(GDP = unique(paygap$GDP), predictions = predict(lin_mod1, newdata = data.frame(GDP = unique(paygap$GDP)))), 
+            aes(x = GDP, y = predictions), color = "black", size = 1) +  # Linea di regressione generale
+  labs(title = "Regressione di Secondary_sector su GDP",
+       x = "GDP",
+       y = "Secondary Sector") +
+  theme_minimal()
+
+summary(lin_mod1)
+```
+
+# Milena
+
 ### upload the new dataset and section it
+
 ```{r}
 management <- read.csv("Employment in senior and middle management, female (%).csv")
 view(management)
 ```
 
 ### new variable european countries
+
 ```{r}
 all_countries <- unique(management$Country.Name)
-print(all_countries)
 
 # List of European countries
-e_countries_management <- c(european_countries <- c(
+european_countries <- c(
     "Austria", "Belarus", "Belgium", "Bosnia and Herzegovina", "Bulgaria", 
     "Croatia", "Cyprus", "Czechia", "Denmark", "Estonia", "Finland", "France", 
     "Georgia", "Germany", "Greece", "Hungary", "Iceland", "Ireland", "Italy", 
@@ -68,16 +127,23 @@ e_countries_management <- c(european_countries <- c(
     "Montenegro", "Netherlands", "North Macedonia", "Norway", "Poland", "Portugal", 
     "Romania", "Russia", "San Marino", "Serbia", "Slovakia", "Slovenia", "Spain", 
     "Sweden", "Switzerland", "Turkey", "Ukraine", "United Kingdom", "Vatican City"
-))
+)
 
-# Create a new variable 'Country.NameEU' containing only European countries
+# Create a new variable Country.NameEU containing only European countries
 management <- management %>%
   mutate(Country.NameEU = ifelse(Country.Name %in% european_countries, Country.Name, NA))
+
+# View the 'management' dataset to check the updated variable
 view(management)
 
+
 ```
+
 ### distribution of the Female share of employment in senior and middle management (%) in European countries
+
 ```{r}
+# Filter the dataset for only European countries
+e_data <- subset(management, Country.Name %in% european_countries)
 
 # Create a choropleth map
 map <- plot_geo(e_data, locations = ~Country.NameEU, locationmode = "country names") %>%
@@ -97,8 +163,7 @@ map
 ```
 
 ```{r}
-
-# Sort the data by 'Value' in descending order
+Sort the data by 'Value' in descending order
 sorted_data <- e_data[order(-e_data$Value), ]
 
 # Extract the highest three values
@@ -161,7 +226,30 @@ summary(model)
 # Perform linear regression with 'Value' and 'Secondary_sector'
 model <- lm(Value ~ Secondary_sector, data = merged_data)
 
-# Summary of the regression model
 summary(model)
 
 ```
+
+### plot a scatter plot of the previous regression
+
+```{r}
+
+# Scatter plot with regression line using Plotly
+plot <- ggplot(merged_data, aes(x = Secondary_sector, y = Value)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Secondary Sector", y = "Percentage of Females in Managerial Positions") +
+  ggtitle("Regression of Percentage of Females in Managerial Positions vs Secondary Sector")
+
+# Convert ggplot to Plotly
+plotly_plot <- ggplotly(plot)
+
+# Display the Plotly plot
+plotly_plot
+
+
+```
+
+This model suggests a negative relationship between 'Secondary_sector' and 'Value' (percentage of females in managerial positions), implying that as the 'Secondary_sector' variable increases, the 'Value' decreases, holding other factors constant.
+
+While statistically significant, the R-squared value is relatively low, indicating that 'Secondary_sector' might not be the only influential factor determining the percentage of females in managerial positions. Other variables or factors might contribute to this as well.
