@@ -47,3 +47,32 @@ ggplot(paygap, aes(x = GDP, y = Secondary_sector, color = Country)) +
 
 summary(lin_mod1)
 
+# Milena
+### upload the new dataset and section it
+```{r}
+management <- read.csv("Employment in senior and middle management, female (%).csv")
+view(management)
+```
+
+### new variable european countries
+```{r}
+all_countries <- unique(management$Country.Name)
+print(all_countries)
+
+# List of European countries
+e_countries_management <- c(european_countries <- c(
+    "Austria", "Belarus", "Belgium", "Bosnia and Herzegovina", "Bulgaria", 
+    "Croatia", "Cyprus", "Czechia", "Denmark", "Estonia", "Finland", "France", 
+    "Georgia", "Germany", "Greece", "Hungary", "Iceland", "Ireland", "Italy", 
+    "Latvia", "Lithuania", "Luxembourg", "Malta", "Moldova", "Monaco", 
+    "Montenegro", "Netherlands", "North Macedonia", "Norway", "Poland", "Portugal", 
+    "Romania", "Russia", "San Marino", "Serbia", "Slovakia", "Slovenia", "Spain", 
+    "Sweden", "Switzerland", "Turkey", "Ukraine", "United Kingdom", "Vatican City"
+))
+
+# Create a new variable 'Country.NameEU' containing only European countries
+management <- management %>%
+  mutate(Country.NameEU = ifelse(Country.Name %in% european_countries, Country.Name, NA))
+view(management)
+
+```
