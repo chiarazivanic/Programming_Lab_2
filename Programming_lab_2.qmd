@@ -47,12 +47,12 @@ ggplot(paygap, aes(x = GDP, y = Secondary_sector, color = Country)) +
 
 summary(lin_mod1)
 
-#comment: Unfortunately, the coefficient on GDP is very small (0.00002511), and even the p value is very high (0.394), so that we can not know for sure the dimension of the causality effect. We try adding some more regressors.
+# Unfortunately, the coefficient on GDP is very small (0.00002511), and even the p value is very high (0.394), so that we can not know for sure the dimension of the causality effect. We try adding some more regressors.
 
 lin_mod2 <- lm(Secondary_sector ~ GDP + Year + Urban_population, data=paygap)
 summary(lin_mod2)
 
-#comment: Again, the coefficient on GDP is quite similar as before, still very small and negligible. As concerns the other two regressors, for a 1% increase in urban population the pay gap decreases by 0.3398, and as years go by pay gap decreases by 0.357 every year. It is to note, however, that these values are not statistically significant, as the p value is again very large (only for the coefficient on the year variable, we can confide in its significance but at a 10% significance level).
+# Again, the coefficient on GDP is quite similar as before, still very small and negligible. As concerns the other two regressors, for a 1% increase in urban population the pay gap decreases by 0.3398, and as years go by pay gap decreases by 0.357 every year. It is to note, however, that these values are not statistically significant, as the p value is again very large (only for the coefficient on the year variable, we can confide in its significance but at a 10% significance level).
 
 # Milena
 ---
