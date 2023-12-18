@@ -5,7 +5,7 @@ format: html
 editor: visual
 ---
 
-#Gender equality in the work place
+# Gender pay gap
 
 ```{r}
 
@@ -108,7 +108,7 @@ summary(lin_reg)
 
 ```{r}
 management <- read.csv("Employment in senior and middle management, female (%).csv")
-view(management)
+#view(management)
 ```
 
 #### new variable european countries
@@ -131,7 +131,7 @@ management <- management %>%
   mutate(Name_europe = ifelse(Country.Name %in% european_countries, Country.Name, NA))
 
 # View the 'management' dataset to check the updated variable
-view(management)
+#view(management)
 
 ```
 
@@ -185,7 +185,7 @@ print(lowest_three[, c("Name_europe", "Value")])
 ```
 
 ```{r}
-# ho tolto List of European countries
+
 paygap <- paygap %>%
   mutate(Name_europe = ifelse(Country %in% european_countries, Country, NA))
 
@@ -205,7 +205,7 @@ e_paygap <- e_paygap |> mutate(Secondary_sector = rowMeans(select(e_paygap, Cons
 view(e_paygap)
 ```
 
-merge the two datasets
+prepare e_managemnt to make the regression
 ```{r}
 
 # Convert Year to numeric (if it's stored as character or factor)
@@ -248,7 +248,17 @@ ggplot(e_management, aes(x = Value, y = mean_Secondary_sector)) +
 
 
 ```
-# fino a qui è giusto
+
+create the variable for the tertiary sector in e_management
+```{r}
+
+```
+
+
+### regression with Tertiary_sector and Value
+```{r}
+
+```
 
 ### upload dataset about unpaid domestic and care work
 ```{r}
@@ -267,7 +277,7 @@ view(domestic)
 ```{r}
 
 domestic <- domestic %>%
-  mutate(Country.NameEU = ifelse(Country.Name %in% european_countries, Country.Name, NA))
+  mutate(Name_europe = ifelse(Country.Name %in% european_countries, Country.Name, NA))
 
 view(domestic)
 ```
@@ -279,10 +289,10 @@ e_domestic <- subset(domestic, Country.Name %in% european_countries)
 view(e_domestic)
 
 # Create a choropleth map
-map <- plot_geo(e_domestic, locations = ~Country.NameEU, locationmode = "country names") %>%
+map <- plot_geo(e_domestic, locations = ~Name_europe, locationmode = "country names") %>%
   add_trace(
     z = ~Value2,
-    text = ~paste("Country: ", Country.NameEU, "<br>Proportion of time spent on unpaid domestic and care work: ", Value2, "%"),
+    text = ~paste("Country: ", Name_europe, "<br>Proportion of time spent on unpaid domestic and care work: ", Value2, "%"),
     colorscale = "Viridis",
     colorbar = list(title = "Proportion of time spent on unpaid domestic and care work")
   ) %>%
@@ -298,7 +308,7 @@ map
 ```{r}
 # Filter for the most recent date for each country
 most_recent_data_domestic <- e_domestic %>%
-  group_by(Country.NameEU) %>%
+  group_by(Name_europe) %>%
   filter(Year == max(Year))  # Filter for rows with the maximum Year value for each country
 
 # Sort the most recent data by 'Value2' in descending order
@@ -312,20 +322,20 @@ lowest_three_domestic <- tail(sorted_most_recent_domestic, 3)
 
 # Print the highest and lowest three values
 cat("Highest Three:\n")
-print(highest_three_domestic[, c("Country.NameEU", "Value2")])
+print(highest_three_domestic[, c("Name_europe", "Value2")])
 
 cat("\nLowest Three:\n")
-print(lowest_three_domestic[, c("Country.NameEU", "Value2")])
+print(lowest_three_domestic[, c("Name_europe", "Value2")])
 
 ```
 
 ```{r}
-
-# Merge datasets on 'Country.NameEU'
-merged_dataset <- merge(merged_data, e_domestic, by = "Country.NameEU", all = TRUE)
+#view(e_paygap_mean)
+# Merge datasets on 'Name_europe'
+merged_dataset <- merge(e_paygap_mean, e_domestic, by = "Name_europe", all = TRUE)
 
 # Perform linear regression
-model <- lm(Value2 ~ Secondary_sector, data = merged_dataset)
+model <- lm(Value2 ~ mean_Secondary_sector, data = merged_dataset)
 
 # Summary of the regression model
 summary(model)
@@ -345,7 +355,7 @@ summary(data.frame(Secondary_sector = merged_dataset$Secondary_sector))
 summary(model)  # Check if 'model' is based on 'merged_dataset'
 
 # Create a scatter plot with regression line
-ggplot(merged_dataset, aes(x = Value2, y = Secondary_sector)) +
+ggplot(merged_dataset, aes(x = Value2, y = mean_Secondary_sector)) +
   geom_point(color = "black") +  # Scatter plot with black points
   geom_smooth(method = "lm", se = FALSE, color = "blue", size = 1.2) +  # Regression line in red, thicker
   labs(title = "Impact of Value2 on Secondary Sector",
@@ -353,3 +363,8 @@ ggplot(merged_dataset, aes(x = Value2, y = Secondary_sector)) +
   theme_minimal()  # Aesthetic adjustment to a minimal theme
 
 ```
+
+```{r}
+
+```
+
