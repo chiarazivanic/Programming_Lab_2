@@ -53,6 +53,35 @@ summary(lin_mod2)
 
 # Again, the coefficient on GDP is quite similar as before, still very small and negligible. As concerns the other two regressors, for a 1% increase in urban population the pay gap decreases by 0.3398, and as years go by pay gap decreases by 0.357 every year. It is to note, however, that these values are not statistically significant, as the p value is again very large (only for the coefficient on the year variable, we can confide in its significance but at a 10% significance level).
 
+#Alessia
+
+paygapEU <- paygapEU |> 
+  mutate(Tertiary_sector = rowMeans(select(paygapEU, Business, Real.estate, Education), na.rm=TRUE))
+
+#We now create a linear regression between GDP and the Tertiary sector. The GPD represents the independent variable while the Tertiary sector represents the dependent one. Lastly, we plot the regression and the line of fit, to help us better understand the relation between these two variables.
+
+#Linear regression between GDP and tertiary sector
+
+lin_reg <- lm(Tertiary_sector ~ GDP, data = paygapEU)
+lin_reg
+
+#Plot of the regression
+
+countries_to_plot <- c("Italy", "Switzerland", "Bulgaria")
+df_filtered <- paygapEU %>% 
+  filter(Country %in% countries_to_plot)
+
+ggplot(df_filtered, aes(x = GDP, y = Tertiary_sector, color = Country)) +
+  geom_point() +  
+  geom_smooth(method = "lm", se = FALSE) +  
+  geom_line(data = data.frame(GDP = unique(paygapEU$GDP), predictions = predict(lin_reg, newdata = data.frame(GDP = unique(paygapEU$GDP)))), 
+            aes(x = GDP, y = predictions), color = "black", size = 1) +  
+  labs(title = "Regression between the tertiary sector in GDP",
+       x = "GDP",
+       y = "Tertiary Sector") +
+  theme_minimal()
+
+summary(lin_reg)
 
 # Milena
 
