@@ -31,7 +31,7 @@ paygapEU <- paygapEU |> mutate(Secondary_sector = rowMeans(select(paygapEU, Cons
 
 # Esegui la regressione lineare generale 
 lin_mod1 <- lm(Secondary_sector ~ GDP, data = paygapEU)
-lin_mod1
+summary(lin_mod1)
 
 # Crea il grafico utilizzando ggplot2
 ggplot(paygapEU, aes(x = GDP, y = Secondary_sector, color = Country)) +
