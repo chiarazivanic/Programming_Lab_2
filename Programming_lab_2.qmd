@@ -99,8 +99,12 @@ ggplot(df_filtered, aes(x = GDP, y = Tertiary_sector, color = Country)) +
 
 summary(lin_reg)
 ```
+{r}
+#Correlation between GDP and Tertiary sector
 
+corr_GDP_ter <- cor(paygapEU$GDP, paygapEU$Tertiary_sector, use = "pairwise.complete.obs")
 
+corr_GDP_ter
 
 # Milena
 
