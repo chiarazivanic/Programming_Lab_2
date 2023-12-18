@@ -25,21 +25,20 @@ paygapEU <- read.csv("pay_gap_Europe.csv")
 
 head(paygapEU)
 summary(paygapEU$GDP)
-paygap <- paygapEU |> filter(Country %in% c("Italy", "Switzerland", "Bulgaria")) 
-paygap <- paygap |> select(-c(Industry, Electricity_supply, Water_supply, Retail.trade, Transportation, Accommodation, Information, Financial, Professional_scientific, Administrative, Public_administration, Human_health, Arts, Other))
+paygap <- paygapEU |> filter(Country %in% c("Italy", "Switzerland", "Bulgaria")) |> select(-c(Industry, Electricity_supply, Water_supply, Retail.trade, Transportation, Accommodation, Information, Financial, Professional_scientific, Administrative, Public_administration, Human_health, Arts, Other))
 
-paygap <- paygap |> mutate(Secondary_sector = rowMeans(select(paygap, Construction, Mining, Manufacturing), na.rm=TRUE))
+paygapEU <- paygapEU |> mutate(Secondary_sector = rowMeans(select(paygapEU, Construction, Mining, Manufacturing), na.rm=TRUE))
 
 # Esegui la regressione lineare generale 
-lin_mod1 <- lm(Secondary_sector ~ GDP, data = paygap)
+lin_mod1 <- lm(Secondary_sector ~ GDP, data = paygapEU)
 lin_mod1
 
 # Crea il grafico utilizzando ggplot2
-ggplot(paygap, aes(x = GDP, y = Secondary_sector, color = Country)) +
+ggplot(paygapEU, aes(x = GDP, y = Secondary_sector, color = Country)) +
   geom_point(alpha = 0.5) +  
-  geom_smooth(data = paygap, method = "lm", se = TRUE, aes(fill = Country), alpha = 0.2) +  # Linee di regressione con intervalli di confidenza
-  geom_line(data = data.frame(GDP = unique(paygap$GDP), predictions = predict(lin_mod1, newdata = data.frame(GDP = unique(paygap$GDP)))), 
-            aes(x = GDP, y = predictions), color = "black", size = 1) +  # Linea di regressione generale
+  geom_smooth(data = paygapEU, method = "lm", se = TRUE, aes(fill = Country), alpha = 0.2) +  
+  geom_line(data = data.frame(GDP = unique(paygapEU$GDP), predictions = predict(lin_mod1, newdata = data.frame(GDP = unique(paygapEU$GDP)))), 
+            aes(x = GDP, y = predictions), color = "black", size = 1) +  
   labs(title = "Regressione di Secondary_sector su GDP",
        x = "GDP",
        y = "Secondary Sector") +
@@ -56,6 +55,8 @@ summary(lin_mod2)
 
 
 # Milena
+
+
 
 ### upload the new dataset and section it
 
