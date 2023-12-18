@@ -56,8 +56,6 @@ summary(lin_mod2)
 
 # Milena
 
-
-
 ### upload the new dataset and section it
 
 ```{r}
@@ -65,11 +63,11 @@ management <- read.csv("Employment in senior and middle management, female (%).c
 view(management)
 ```
 
-### new variable european countries
+#### new variable european countries
 
 ```{r}
 all_countries <- unique(management$Country.Name)
-#print useful to get the complete list of european countries
+#print useful to get the complete list of european counntries
 
 # List of European countries
 european_countries <- c(
@@ -88,6 +86,8 @@ management <- management %>%
 
 # View the 'management' dataset to check the updated variable
 view(management)
+
+
 ```
 
 ### distribution of the Female share of employment in senior and middle management (%) in European countries
@@ -119,14 +119,19 @@ map
 ```
 
 ```{r}
-# Sort the data by 'Value' in descending order
-sorted_data <- e_management[order(-e_management$Value), ]
+# Filter for the most recent date for each country
+most_recent_data <- e_management %>%
+  group_by(Country.NameEU) %>%
+  filter(Year == max(Year))  # Filter for rows with the maximum Year value for each country
+
+# Sort the most recent data by 'Value' in descending order
+sorted_most_recent <- most_recent_data %>% arrange(desc(Value))
 
 # Extract the highest three values
-highest_three <- head(sorted_data, 3)
+highest_three <- head(sorted_most_recent, 3)
 
 # Extract the lowest three values
-lowest_three <- tail(sorted_data, 3)
+lowest_three <- tail(sorted_most_recent, 3)
 
 # Print the highest and lowest three values
 cat("Highest Three:\n")
@@ -137,11 +142,9 @@ print(lowest_three[, c("Country.NameEU", "Value")])
 
 ```
 
+Upload the dataset for managerial positions
 ```{r}
 # ho tolto List of European countries
-
-# Create 'Country.NameEU' in 'paygapEU' dataset
-paygapEU$Country.NameEU <- ifelse(paygapEU$Country %in% european_countries, paygapEU$Country, NA)
 
 # Create 'Country.NameEU' in 'paygapEU' dataset
 paygapEU$Country.NameEU <- ifelse(paygapEU$Country %in% european_countries, paygapEU$Country, NA)
@@ -149,9 +152,9 @@ paygapEU$Country.NameEU <- ifelse(paygapEU$Country %in% european_countries, payg
 ```
 
 ```{r}
-## Check unique values in 'Country.NameEU' column in 'management'
+# Check unique values in 'Country.NameEU' column in 'management'
 unique_countries_management <- unique(management$Country.NameEU)
-print(unique_countries_management)
+#print(unique_countries_management)
 
 # Check unique values in 'Country.NameEU' column in 'paygapEU'
 unique_countries_paygapEU <- unique(paygapEU$Country.NameEU)
@@ -160,21 +163,13 @@ print(unique_countries_paygapEU)
 # Merge 'paygapEU' with 'paygap' based on the 'Country' column
 paygapEU <- merge(paygapEU, paygap[, c("Country", "Secondary_sector")], by = "Country", all.x = TRUE)
 
-# View the updated 'paygapEU' dataset
-print(head(paygapEU))
 
-# Merge the datasets on a common column ('Country.NameEU' assumed)
+# Merge the datasets on a common column
 merged_data <- merge(management, paygapEU, by = "Country.NameEU")
-# Check column names in the merged dataset
-print(colnames(merged_data))
-# Assuming 'Secondary_sector.x' is the relevant column
-model <- lm(Value ~ Secondary_sector, data = merged_data)
-
-# Summary of the regression model
-summary(model)
+view(merged_data)
 
 # Perform linear regression with 'Value' and 'Secondary_sector'
-model <- lm(Value ~ Secondary_sector, data = merged_data)
+model <- lm(Secondary_sector ~ Value, data = merged_data)
 
 # Summary of the regression model
 summary(model)
@@ -184,21 +179,102 @@ summary(model)
 ### plot a scatter plot of the previous regression
 
 ```{r}
-# Scatter plot with regression line using Plotly
-plot <- ggplot(merged_data, aes(x = Secondary_sector, y = Value)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE) +
-  labs(x = "Secondary Sector", y = "Percentage of Females in Managerial Positions") +
-  ggtitle("Regression of Percentage of Females in Managerial Positions vs Secondary Sector")
 
-# Convert ggplot to Plotly
-plotly_plot <- ggplotly(plot)
-
-# Display the Plotly plot
-plotly_plot
+# Create a scatter plot with regression line
+ggplot(merged_data, aes(x = Value, y = Secondary_sector)) +
+  geom_point() +  # Scatter plot
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Regression line
+  labs(title = "Linear Regression: Value vs Secondary_sector",
+       x = "Percentage of female managers", y = "Secondary_sector")  # Labels for the plot
 
 ```
 
-This model suggests a negative relationship between 'Secondary_sector' and 'Value' (percentage of females in managerial positions), implying that as the 'Secondary_sector' variable increases, the 'Value' decreases, holding other factors constant.
+This model suggests a negative relationship between 'Secondary_sector' and 'Value' (percentage of females in managerial positions), implying that as the percentage of females in managerial position increases the gender pay gap decreases.
 
-While statistically significant, the R-squared value is relatively low, indicating that 'Secondary_sector' might not be the only influential factor determining the percentage of females in managerial positions. Other variables or factors might contribute to this as well.
+While statistically significant, the R-squared value is relatively low, indicating that 'Value' might not be the only influential factor determining the percentage of females in managerial positions. Other variables or factors might contribute to this as well.
+
+### upload dataset about unpaid domestic and care work
+```{r}
+domestic <- read.csv("Proportion of time spent on unpaid domestic and care work (% of 24 hour day).csv")
+
+# Rename 'Value' column to 'Value2' in the 'domestic' dataset
+domestic <- domestic %>%
+  rename(Value2 = Value)
+
+# Check the updated column names
+print(colnames(domestic))
+view(domestic)
+
+```
+
+```{r}
+
+domestic <- domestic %>%
+  mutate(Country.NameEU = ifelse(Country.Name %in% european_countries, Country.Name, NA))
+
+view(domestic)
+```
+
+### graph to show the distribution
+```{r}
+# Filter the dataset for only European countries
+e_domestic <- subset(domestic, Country.Name %in% european_countries)
+view(e_domestic)
+
+# Create a choropleth map
+map <- plot_geo(e_domestic, locations = ~Country.NameEU, locationmode = "country names") %>%
+  add_trace(
+    z = ~Value2,
+    text = ~paste("Country: ", Country.NameEU, "<br>Proportion of time spent on unpaid domestic and care work: ", Value2, "%"),
+    colorscale = "Viridis",
+    colorbar = list(title = "Proportion of time spent on unpaid domestic and care work")
+  ) %>%
+  layout(
+    title = "Proportion of time spent on unpaid domestic and care work",
+    geo = list(scope = "europe")
+  )
+
+# Show the map
+map
+```
+why do I have an error in the code below?
+
+```{r}
+# Filter for the most recent date for each country
+most_recent_data_domestic <- e_domestic %>%
+  group_by(Country.NameEU) %>%
+  filter(Year == max(Year))  # Filter for rows with the maximum Year value for each country
+
+# Sort the most recent data by 'Value2' in descending order
+sorted_most_recent_domestic <- most_recent_data_domestic %>% arrange(desc(Value2))
+
+# Extract the highest three values
+highest_three_domestic <- head(sorted_most_recent_domestic, 3)
+
+# Extract the lowest three values
+lowest_three_domestic <- tail(sorted_most_recent_domestic, 3)
+
+# Print the highest and lowest three values
+cat("Highest Three:\n")
+print(highest_three_domestic[, c("Country.NameEU", "Value2")])
+
+cat("\nLowest Three:\n")
+print(lowest_three_domestic[, c("Country.NameEU", "Value2")])
+
+```
+
+```{r}
+# Assuming 'Country.NameEU' is the common column
+
+# Merge datasets on 'Country.NameEU'
+merged_dataset <- merge(merged_data, e_domestic, by = "Country.NameEU", all = TRUE)
+
+# Perform linear regression
+model <- lm(Value2 ~ Secondary_sector, data = merged_dataset)
+
+# Summary of the regression model
+summary(model)
+
+```
+
+
