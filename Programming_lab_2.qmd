@@ -83,6 +83,7 @@ ggplot(df_filtered, aes(x = GDP, y = Tertiary_sector, color = Country)) +
 
 summary(lin_reg)
 
+
 # Milena
 
 ### upload the new dataset and section it
@@ -266,7 +267,6 @@ map <- plot_geo(e_domestic, locations = ~Country.NameEU, locationmode = "country
 # Show the map
 map
 ```
-why do I have an error in the code below?
 
 ```{r}
 # Filter for the most recent date for each country
@@ -293,7 +293,6 @@ print(lowest_three_domestic[, c("Country.NameEU", "Value2")])
 ```
 
 ```{r}
-# Assuming 'Country.NameEU' is the common column
 
 # Merge datasets on 'Country.NameEU'
 merged_dataset <- merge(merged_data, e_domestic, by = "Country.NameEU", all = TRUE)
@@ -305,5 +304,25 @@ model <- lm(Value2 ~ Secondary_sector, data = merged_dataset)
 summary(model)
 
 ```
+###graph of the regression
+```{r}
+# Check the number of rows in datasets
+nrow(merged_dataset)
+nrow(data.frame(Secondary_sector = merged_dataset$Secondary_sector))  # Check Secondary_sector data
 
+# Check for missing values
+summary(merged_dataset$Secondary_sector)  # Check summary statistics
+summary(data.frame(Secondary_sector = merged_dataset$Secondary_sector))
 
+# Ensure 'model' is using 'merged_dataset'
+summary(model)  # Check if 'model' is based on 'merged_dataset'
+
+# Create a scatter plot with regression line
+ggplot(merged_dataset, aes(x = Value2, y = Secondary_sector)) +
+  geom_point(color = "black") +  # Scatter plot with black points
+  geom_smooth(method = "lm", se = FALSE, color = "blue", size = 1.2) +  # Regression line in red, thicker
+  labs(title = "Impact of Value2 on Secondary Sector",
+       x = "Value2", y = "Secondary Sector") +  # Labels for the plot
+  theme_minimal()  # Aesthetic adjustment to a minimal theme
+
+```
