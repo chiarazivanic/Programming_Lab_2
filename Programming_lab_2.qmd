@@ -7,7 +7,8 @@ editor: visual
 
 #Gender equality in the work place
 
-{r}
+```{r}
+
 library(readr)
 library(tidyverse)
 library(gapminder)
@@ -20,20 +21,26 @@ library(knitr)
 library(plotly)
 
 getwd()
-setwd("/Users/chiarazivanic/Desktop/Programminglab2")
-paygapEU <- read.csv("pay_gap_Europe.csv")
 
-head(paygapEU)
-summary(paygapEU$GDP)
-paygap <- paygapEU |> filter(Country %in% c("Italy", "Switzerland", "Bulgaria")) |> select(-c(Industry, Electricity_supply, Water_supply, Retail.trade, Transportation, Accommodation, Information, Financial, Professional_scientific, Administrative, Public_administration, Human_health, Arts, Other))
+#setwd("C:/Users/SAMSUNG PC/OneDrive/uni/programminglab2/progetto_esame")
+paygap <- read.csv("pay_gap_Europe.csv")
+view(paygap)
+
+```
+
+```{r}
+head(paygap)
+summary(paygap$GDP)
+
+paygapEU <- paygap |> filter(Country %in% c("Italy", "Switzerland", "Bulgaria")) |> select(-c(Industry, Electricity_supply, Water_supply, Retail.trade, Transportation, Accommodation, Information, Financial, Professional_scientific, Administrative, Public_administration, Human_health, Arts, Other))
 
 paygapEU <- paygapEU |> mutate(Secondary_sector = rowMeans(select(paygapEU, Construction, Mining, Manufacturing), na.rm=TRUE))
 
-# Esegui la regressione lineare generale 
+# Execute the linear regression
 lin_mod1 <- lm(Secondary_sector ~ GDP, data = paygapEU)
 summary(lin_mod1)
 
-# Crea il grafico utilizzando ggplot2
+# Create the plot using ggplot2
 ggplot(paygapEU, aes(x = GDP, y = Secondary_sector, color = Country)) +
   geom_point(alpha = 0.5) +  
   geom_smooth(data = paygapEU, method = "lm", se = TRUE, aes(fill = Country), alpha = 0.2) +  
@@ -48,25 +55,34 @@ summary(lin_mod1)
 
 # Unfortunately, the coefficient on GDP is very small (0.00002511), and even the p value is very high (0.394), so that we can not know for sure the dimension of the causality effect. We try adding some more regressors.
 
-lin_mod2 <- lm(Secondary_sector ~ GDP + Year + Urban_population, data=paygap)
+lin_mod2 <- lm(Secondary_sector ~ GDP + Year + Urban_population, data=paygapEU)
 summary(lin_mod2)
 
-# Again, the coefficient on GDP is quite similar as before, still very small and negligible. As concerns the other two regressors, for a 1% increase in urban population the pay gap decreases by 0.3398, and as years go by pay gap decreases by 0.357 every year. It is to note, however, that these values are not statistically significant, as the p value is again very large (only for the coefficient on the year variable, we can confide in its significance but at a 10% significance level).
+```
+Again, the coefficient on GDP is quite similar as before, still very small and negligible. As concerns the other two regressors, for a 1% increase in urban population the pay gap decreases by 0.3398, and as years go by pay gap decreases by 0.357 every year. It is to note, however, that these values are not statistically significant, as the p value is again very large (only for the coefficient on the year variable, we can confide in its significance but at a 10% significance level).
 
-# Alessia
 
+#Alessia
+
+```{r}
 paygapEU <- paygapEU |> 
   mutate(Tertiary_sector = rowMeans(select(paygapEU, Business, Real.estate, Education), na.rm=TRUE))
 
-#We now create a linear regression between GDP and the Tertiary sector. The GPD represents the independent variable while the Tertiary sector represents the dependent one. Lastly, we plot the regression and the line of fit, to help us better understand the relation between these two variables.
+```
 
-#Linear regression between GDP and tertiary sector
 
+We now create a linear regression between GDP and the Tertiary sector. The GPD represents the independent variable while the Tertiary sector represents the dependent one. Lastly, we plot the regression and the line of fit, to help us better understand the relation between these two variables.
+
+Linear regression between GDP and tertiary sector
+
+```{r}
 lin_reg <- lm(Tertiary_sector ~ GDP, data = paygapEU)
 lin_reg
+```
 
-#Plot of the regression
 
+Plot of the regression
+```{r}
 countries_to_plot <- c("Italy", "Switzerland", "Bulgaria")
 df_filtered <- paygapEU %>% 
   filter(Country %in% countries_to_plot)
@@ -82,12 +98,8 @@ ggplot(df_filtered, aes(x = GDP, y = Tertiary_sector, color = Country)) +
   theme_minimal()
 
 summary(lin_reg)
+```
 
-#Correlation between GDP and Tertiary sector
-
-corr_GDP_ter <- cor(paygapEU$GDP, paygapEU$Tertiary_sector, use = "pairwise.complete.obs")
-
-corr_GDP_ter
 
 
 # Milena
@@ -103,45 +115,43 @@ view(management)
 
 ```{r}
 all_countries <- unique(management$Country.Name)
-#print useful to get the complete list of european counntries
-
+#print useful to get the complete list of european countries
+print(all_countries)
 # List of European countries
 european_countries <- c(
     "Albania", "Austria", "Belarus", "Belgium", "Bosnia and Herzegovina", "Bulgaria", 
     "Croatia", "Cyprus", "Czechia", "Denmark", "Estonia", "Finland", "France", 
-    "Georgia", "Germany", "Greece", "Hungary", "Iceland", "Ireland", "Italy", 
-    "Latvia", "Lithuania", "Luxembourg", "Malta", "Moldova", "Monaco", 
+    "Georgia", "Germany", "Greece", "Hungary", "Iceland", "Ireland", "Italy", "Kosovo", "Latvia", "Lithuania", "Luxembourg", "Malta", "Moldova", "Monaco", 
     "Montenegro", "Netherlands", "North Macedonia", "Norway", "Poland", "Portugal", 
-    "Romania", "Russia", "San Marino", "Serbia", "Slovakia", "Slovenia", "Spain", 
-    "Sweden", "Switzerland", "Turkey", "Ukraine", "United Kingdom", "Vatican City"
+    "Romania", "Russian federation", "Serbia", "Slovak Republic", "Slovenia", "Spain", "Sweden", "Switzerland", "Turkiye", "United Kingdom"
 )
 
-# Create a new variable Country.NameEU containing only European countries
+# Create a new variable Name_europe containing only European countries
 management <- management %>%
-  mutate(Country.NameEU = ifelse(Country.Name %in% european_countries, Country.Name, NA))
+  mutate(Name_europe = ifelse(Country.Name %in% european_countries, Country.Name, NA))
 
 # View the 'management' dataset to check the updated variable
 view(management)
-
 
 ```
 
 ### distribution of the Female share of employment in senior and middle management (%) in European countries
 
 ```{r}
-# Filter the dataset for only European countries
+# Filter the dataset for only European countries: create e_management
 e_management <- subset(management, Country.Name %in% european_countries)
+view(e_management)
 
 # Filter the dataset for the most recent year's data for each country
 recent_data <- e_management %>%
-  group_by(Country.NameEU) %>%
+  group_by(Name_europe) %>%
   filter(Year == max(Year))  # Filter for rows with the maximum Year value for each country
 
 # Create the choropleth map with the filtered recent_data
-map <- plot_geo(recent_data, locations = ~Country.NameEU, locationmode = "country names") %>%
+map <- plot_geo(recent_data, locations = ~Name_europe, locationmode = "country names") %>%
   add_trace(
     z = ~Value,
-    text = ~paste("Country: ", Country.NameEU, "<br>Percentage of Females: ", Value, "%"),
+    text = ~paste("Country: ", Name_europe, "<br>Percentage of Females: ", Value, "%"),
     colorscale = "Viridis",
     colorbar = list(title = "Percentage of Females in Managerial Positions")
   ) %>%
@@ -155,73 +165,90 @@ map
 ```
 
 ```{r}
-# Filter for the most recent date for each country
-most_recent_data <- e_management %>%
-  group_by(Country.NameEU) %>%
-  filter(Year == max(Year))  # Filter for rows with the maximum Year value for each country
 
 # Sort the most recent data by 'Value' in descending order
-sorted_most_recent <- most_recent_data %>% arrange(desc(Value))
+sorted_recent <- recent_data %>% arrange(desc(Value))
 
 # Extract the highest three values
-highest_three <- head(sorted_most_recent, 3)
+highest_three <- head(sorted_recent, 3)
 
 # Extract the lowest three values
-lowest_three <- tail(sorted_most_recent, 3)
+lowest_three <- tail(sorted_recent, 3)
 
 # Print the highest and lowest three values
 cat("Highest Three:\n")
-print(highest_three[, c("Country.NameEU", "Value")])
+print(highest_three[, c("Name_europe", "Value")])
 
 cat("\nLowest Three:\n")
-print(lowest_three[, c("Country.NameEU", "Value")])
+print(lowest_three[, c("Name_europe", "Value")])
 
 ```
 
-Upload the dataset for managerial positions
 ```{r}
 # ho tolto List of European countries
+paygap <- paygap %>%
+  mutate(Name_europe = ifelse(Country %in% european_countries, Country, NA))
 
-# Create 'Country.NameEU' in 'paygapEU' dataset
-paygapEU$Country.NameEU <- ifelse(paygapEU$Country %in% european_countries, paygapEU$Country, NA)
+# Create a copy of the dataset containing only observations with Name_europe
+e_paygap <- paygap %>% filter(!is.na(Name_europe))
+
+# Displaying the new dataset
+print(e_paygap)
+
+view(e_paygap)
+view(e_management)
+```
+
+create Secondary_sector in e_paygap
+```{r}
+e_paygap <- e_paygap |> mutate(Secondary_sector = rowMeans(select(e_paygap, Construction, Mining, Manufacturing), na.rm=TRUE))
+view(e_paygap)
+```
+
+merge the two datasets
+```{r}
+
+# Convert Year to numeric (if it's stored as character or factor)
+e_paygap$Year <- as.numeric(e_paygap$Year)
+
+# Grouping by Country and calculating the mean for the most recent year
+e_paygap_mean <- e_paygap %>%
+  group_by(Country) %>%
+  filter(Year == max(Year)) %>%
+  summarize(mean_Secondary_sector = mean(Secondary_sector, na.rm = TRUE))
+
+# Displaying the mean values for the most recent year per country
+print(e_paygap_mean)
+
+# Renaming the columns to have the same name for merging
+names(e_paygap_mean)[1] <- "Name_europe"  
+
+# Merging based on the Country column to copy mean values
+e_management <- merge(e_management, e_paygap_mean, by = "Name_europe", all.x = TRUE)
 
 ```
 
+### do a regression
 ```{r}
-# Check unique values in 'Country.NameEU' column in 'management'
-unique_countries_management <- unique(management$Country.NameEU)
-#print(unique_countries_management)
+# Creating a linear regression model
+regression_model <- lm(Value ~ mean_Secondary_sector, data = e_management)
 
-# Check unique values in 'Country.NameEU' column in 'paygapEU'
-unique_countries_paygapEU <- unique(paygapEU$Country.NameEU)
-print(unique_countries_paygapEU)
-
-
-# Merge the datasets on a common column
-merged_data <- merge(management, paygapEU, by = "Country.NameEU")
-view(merged_data)
-
-# Perform linear regression with 'Value' and 'Secondary_sector'
-model <- lm(Secondary_sector ~ Value, data = merged_data)
-
-# Summary of the regression model
-summary(model)
+# Summarizing the regression model
+summary(regression_model)
 
 ```
 
-### plot a scatter plot of the previous regression
-
+### create a plot for the previous regression
 ```{r}
-
-# Create a scatter plot with regression line
-ggplot(merged_data, aes(x = Value, y = Secondary_sector)) +
-  geom_point() +  # Scatter plot
-  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Regression line
+ggplot(e_management, aes(x = Value, y = mean_Secondary_sector)) +
+  geom_point() +  # Scatter plot of data points
+  geom_smooth(method = "lm", se = FALSE) +  # Regression line
   labs(title = "Linear Regression: Value vs Secondary_sector",
-       x = "Percentage of female managers", y = "Secondary_sector")  # Labels for the plot
+       x = "Value", y = "Secondary_sector")
+
 
 ```
-
+# fino a qui è giusto
 
 ### upload dataset about unpaid domestic and care work
 ```{r}
