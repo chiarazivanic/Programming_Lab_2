@@ -219,9 +219,6 @@ ggplot(merged_data, aes(x = Value, y = Secondary_sector)) +
 
 ```
 
-This model suggests a negative relationship between 'Secondary_sector' and 'Value' (percentage of females in managerial positions), implying that as the percentage of females in managerial position increases the gender pay gap decreases.
-
-While statistically significant, the R-squared value is relatively low, indicating that 'Value' might not be the only influential factor determining the percentage of females in managerial positions. Other variables or factors might contribute to this as well.
 
 ### upload dataset about unpaid domestic and care work
 ```{r}
