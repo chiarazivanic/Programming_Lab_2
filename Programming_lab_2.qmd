@@ -95,8 +95,13 @@ view(management)
 # Filter the dataset for only European countries
 e_management <- subset(management, Country.Name %in% european_countries)
 
-# Create a choropleth map
-map <- plot_geo(e_management, locations = ~Country.NameEU, locationmode = "country names") %>%
+# Filter the dataset for the most recent year's data for each country
+recent_data <- e_management %>%
+  group_by(Country.NameEU) %>%
+  filter(Year == max(Year))  # Filter for rows with the maximum Year value for each country
+
+# Create the choropleth map with the filtered recent_data
+map <- plot_geo(recent_data, locations = ~Country.NameEU, locationmode = "country names") %>%
   add_trace(
     z = ~Value,
     text = ~paste("Country: ", Country.NameEU, "<br>Percentage of Females: ", Value, "%"),
@@ -104,7 +109,7 @@ map <- plot_geo(e_management, locations = ~Country.NameEU, locationmode = "count
     colorbar = list(title = "Percentage of Females in Managerial Positions")
   ) %>%
   layout(
-    title = "Percentage of Females in Managerial Positions by European Countries",
+    title = "Most Recent Year: Percentage of Females in Managerial Positions by European Countries",
     geo = list(scope = "europe")
   )
 
